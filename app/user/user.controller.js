@@ -11,6 +11,14 @@ const validationError = (res, statusCode) => {
     return res.status(statusCode).json(err)
   }
 }
+
+
+const handleError = (res, statusCode) => {
+  statusCode = statusCode || 500
+  return function (err) {
+    return res.status(statusCode).send(err)
+  }
+}
 /**
  * 创建用户
  * @param req
@@ -71,66 +79,24 @@ module.exports.signin = (req, res, next) => {
 					}
 				}
 		})
-	// User.findOne(_query, function (err, doc){
-	// 	if(err){
-	// 		res.json({ code: 1, message: err });
-	// 	} else{
-	// 		if ( !doc || doc.length === 0  ) {
-	// 				res.json({ code: 1, message: '邮箱未被注册' });
-	// 			} else {
-	// 				if (doc.authenticate(_password)) {
-	// 					res.json({ 
-	// 						code: 0, 
-	// 						data: {
-	// 							token: doc.token
-	// 						},
-	// 						message: '登录成功' 
-	// 					});
-	// 				} else {
-	// 					res.json({ code: 1, message: '密码错误' });
-	// 				}
-	// 			}
-	// 	}
-	// })
 }
 
-// exports.authenticate = function(_query, cb){
-// 	User.findOne(_query, function(err, doc){
-// 		if(err){
-// 			cb(err, null)
-// 		} else{
-// 			cb(null, doc)
-// 		}
-// 	})
-// }
-// exports.signup = function(req, res, next){
-// 	let _name = req.body.name,
-// 		_email = req.body.email,
-// 		_password = req.body.password
-// 	_query = { name: _name, email: _email, password: _password, avatar: '' };
-// 	db.authenticate({ email: _email }, function(err, doc){
-// 		if(err){
-// 			res.json({ code: 1, message: err });
-// 		} else if(doc === null || doc.length === 0){
-// 			db.signup(_query, function(err, doc){
-// 				if(err){
-// 					res.json({ code: 1, message: err });
-// 				} else{
-// 					res.json({ code: 0, message: "注册成功" });
-// 				}
-// 			})
-// 		} else{
-// 			res.json({ code: 1, message: '邮箱已被注册' });
-// 		}
-// 	})
-// }
 
-// exports.signup = function(_query, cb){
-// 	User.create(_query, function(err, doc){
-// 		if(err){
-// 			cb(err, null)
-// 		} else{
-// 			cb(null, doc)
-// 		}
-// 	})
-// }
+/**
+ * 退出登录
+ */
+module.exports.logout = (req, res) => {
+  var userId = req.user._id
+  return User.findOneAndUpdate({ _id: userId }, { token: '' }).exec()
+    .then(() => {
+      res.status(200).json({
+				code: 0,
+				message: '退出成功'
+			}).end()
+    })
+    .catch(handleError(res))
+}
+
+module.exports.findByToken = (token) => {
+  return User.findOne({ token: token }).exec()
+}
