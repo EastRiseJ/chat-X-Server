@@ -60,13 +60,21 @@ module.exports.create = (req, res) => {
 module.exports.signin = (req, res, next) => {
 	var _email = req.body.email,
 		_password = req.body.password,
-		_query = {email: _email};
+		_query = {email: _email},
+		token = '';
 	User.findOne(_query)
 		.then(user => {
 			if ( !user  ) {
 					res.json({ code: 1, message: '邮箱未被注册' });
 				} else {
 					if (user.authenticate(_password)) {
+						token = jwt.sign({ _id: user._id }, config.secrets.session, {
+							expiresIn: 60 * 60 * 5
+						})
+						user.token = token
+						var updateUser = JSON.parse(JSON.stringify(user))
+						delete updateUser._id
+						User.findOneAndUpdate({ _id: user._id }, updateUser).exec()
 						res.json({ 
 							code: 0, 
 							data: {
