@@ -9,10 +9,5 @@ var router = express.Router()
 router.post('/signup', controller.create)
 router.post('/login', controller.signin)
 router.post('/logout', auth.isAuthenticated(), controller.logout)
-// router.get('/signup', (req, res) => {
-//   res.json({
-//     msg: 'route ok'
-//   })
-// })
 
 module.exports = router
