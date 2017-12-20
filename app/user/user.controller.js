@@ -4,6 +4,7 @@
 const User = require('./user.model')
 const config = require('../../config/config')
 const jwt = require('jsonwebtoken')
+const redis = require('../../config/redis')
 
 const validationError = (res, statusCode) => {
   statusCode = statusCode || 422

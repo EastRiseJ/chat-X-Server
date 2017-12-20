@@ -4,4 +4,9 @@ module.exports = {
 	secrets: {
 			session: 'chatX'
 	},
+	redis: {
+		post: 6379,
+		host: '127.0.0.1',
+		opts: {}
+	}
 };
