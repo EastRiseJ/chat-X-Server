@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const expressJwt = require('express-jwt')
 const config = require('../config/config')
 const compose = require('composable-middleware')
-const {User} = require('../app/user/user.model')
+const User = require('../app/user/user.model')
 const UserController = require('../app/user/user.controller')
 
 const validateJwt = expressJwt({
@@ -54,6 +54,7 @@ module.exports.isAuthenticated = () => {
                     }
                     req.user = user;
                     next();
+                    return null;
                 })
                 .catch(err => next(err));
         });

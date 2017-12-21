@@ -1,7 +1,8 @@
 /**
  * Created by dsji on 2017/12/18 0018.
  */
-const {User, Directorie} = require('./user.model')
+const User = require('./user.model')
+const Directorie = require('./directorie.model')
 const config = require('../../config/config')
 const jwt = require('jsonwebtoken')
 const redis = require('../../config/redis')
@@ -119,9 +120,9 @@ module.exports.findByToken = (token) => {
  */
 module.exports.directories = (req, res, next) => {
 	console.log('staaaa')
-	var _id = req.user,
+	var _id = req.user._id,
 		_query = {sid: _id};
-	return Directorie.findOne(_query).exec()
+	return Directorie.findOne(_query).populate('list', 'email name')
 		.then(data => {
             console.log(data)
 			res.status(200).json({
