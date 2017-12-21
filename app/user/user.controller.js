@@ -1,7 +1,7 @@
 /**
  * Created by dsji on 2017/12/18 0018.
  */
-const User = require('./user.model')
+const {User, Directorie} = require('./user.model')
 const config = require('../../config/config')
 const jwt = require('jsonwebtoken')
 const redis = require('../../config/redis')
@@ -59,6 +59,7 @@ module.exports.create = (req, res) => {
  * 登录
  */
 module.exports.signin = (req, res, next) => {
+	console.log(req)
 	var _email = req.body.email,
 		_password = req.body.password,
 		_query = {email: _email},
@@ -79,6 +80,9 @@ module.exports.signin = (req, res, next) => {
 						res.json({ 
 							code: 0, 
 							data: {
+								name: user.name,
+								email: user.email,
+								avatar: user.avatar,
 								token: user.token
 							},
 							message: '登录成功' 
@@ -108,4 +112,22 @@ module.exports.logout = (req, res) => {
 
 module.exports.findByToken = (token) => {
   return User.findOne({ token: token }).exec()
+}
+
+/*
+ * 获取联系人
+ */
+module.exports.directories = (req, res, next) => {
+	console.log('staaaa')
+	var _id = req.user,
+		_query = {sid: _id};
+	return Directorie.findOne(_query).exec()
+		.then(data => {
+            console.log(data)
+			res.status(200).json({
+						code: 0,
+						data: data
+					}).end()
+		})
+    	.catch(handleError(res))
 }

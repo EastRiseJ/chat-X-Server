@@ -45,4 +45,15 @@ UserSchema.methods = {
     // })
   },
 }
-module.exports = mongoose.model('User', UserSchema);
+
+
+var DirectorieSchema = new Schema({
+  sid: String,
+	list: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+})
+
+
+module.exports = {
+  User: mongoose.model('User', UserSchema),
+  Directorie: mongoose.model('Directorie', DirectorieSchema)
+}
