@@ -9,6 +9,6 @@ var router = express.Router()
 router.post('/signup', controller.create)
 router.post('/login', controller.signin)
 router.post('/logout', auth.isAuthenticated(), controller.logout)
-router.post('/directories', auth.isAuthenticated(), controller.directories)
+router.post('/searchUser', controller.searchUser)
 
 module.exports = router

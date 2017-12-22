@@ -65,7 +65,7 @@ module.exports.signin = (req, res, next) => {
 		_password = req.body.password,
 		_query = {email: _email},
 		token = '';
-	User.findOne(_query)
+	User.findOne(_query).populate('list', 'email name')
 		.then(user => {
 			if ( !user  ) {
 					res.json({ code: 1, message: '邮箱未被注册' });
@@ -84,7 +84,8 @@ module.exports.signin = (req, res, next) => {
 								name: user.name,
 								email: user.email,
 								avatar: user.avatar,
-								token: user.token
+								token: user.token,
+								list: user.list
 							},
 							message: '登录成功' 
 						});
@@ -116,19 +117,26 @@ module.exports.findByToken = (token) => {
 }
 
 /*
- * 获取联系人
+ * 搜索联系人
  */
-module.exports.directories = (req, res, next) => {
-	console.log('staaaa')
-	var _id = req.user._id,
-		_query = {sid: _id};
-	return Directorie.findOne(_query).populate('list', 'email name')
+module.exports.searchUser = (req, res, next) => {
+	var _email = req.body.email,
+		_query = {email: _email};
+	return User.findOne(_query, 'id name email avatar')
 		.then(data => {
-            console.log(data)
-			res.status(200).json({
-						code: 0,
-						data: data
-					}).end()
+			if ( !data  ) {
+				res.json({ code: 1, message: '该用户不存在' });
+			} else {
+				res.status(200).json({
+							code: 0,
+							data: {
+								id: data.id,
+								name: data.name,
+								email: data.email,
+								avatar: data.avatar
+							}
+						}).end()
+			}
 		})
     	.catch(handleError(res))
 }

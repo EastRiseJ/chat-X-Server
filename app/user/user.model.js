@@ -16,7 +16,8 @@ var UserSchema = new Schema({
 	token: {
     type: String,
     default: ''
-  }
+  },
+	list: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 })
 // let User = mongoose.model('User', UserSchema)
 UserSchema.methods = {
