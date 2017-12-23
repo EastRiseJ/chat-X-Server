@@ -117,7 +117,7 @@ module.exports.findByToken = (token) => {
 }
 
 /*
- * 搜索联系人
+ * 搜索用户
  */
 module.exports.searchUser = (req, res, next) => {
 	var _email = req.body.email,

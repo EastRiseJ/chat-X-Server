@@ -1,13 +1,14 @@
 module.exports = (io) => {
-    io.on('connection', function(socket){
-        console.log('a user connected');
+    const liveUser = new Set();
 
-        socket.on("disconnect", function() {
-            console.log("a user go out");
+    io.on('connection', (socket) => {
+        console.log(`一位用户上线`);
+        socket.on('login', function(data) {
+            console.log(data)
         });
 
-        socket.on("message", function(obj) {
-            io.emit("message", obj);
+        socket.on("disconnect", () => {
+            console.log(`一位用户下线`);
         });
     });
 }
