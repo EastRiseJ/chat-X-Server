@@ -81,6 +81,7 @@ module.exports.signin = (req, res, next) => {
 						res.json({ 
 							code: 0, 
 							data: {
+								id: user.id,
 								name: user.name,
 								email: user.email,
 								avatar: user.avatar,
