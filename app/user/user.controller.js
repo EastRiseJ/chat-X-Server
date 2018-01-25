@@ -2,10 +2,8 @@
  * Created by dsji on 2017/12/18 0018.
  */
 const User = require('./user.model')
-const Directorie = require('./directorie.model')
 const config = require('../../config/config')
 const jwt = require('jsonwebtoken')
-const redis = require('../../config/redis')
 
 const validationError = (res, statusCode) => {
   statusCode = statusCode || 422
