@@ -71,3 +71,16 @@ module.exports.signToken = (id, role) => {
         expiresIn: 60 * 60 * 5
     })
 }
+
+module.exports.isAuthenticatedSocket = (token) => {
+    return new Promise((resolve,reject)=>{
+        UserController.findByToken(token).then((user) => {
+            if (user) {
+                //验证token是否过期
+                resolve(user.id)
+            }else{
+                resolve(false)
+            }
+        })
+    })
+}

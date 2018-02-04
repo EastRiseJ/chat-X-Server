@@ -139,3 +139,15 @@ module.exports.searchUser = (req, res, next) => {
 		})
     	.catch(handleError(res))
 }
+
+/**
+ * 增加到好友列表
+ */
+module.exports.addList = (userId, socketId) => {
+    return new Promise((resolve,reject)=>{
+		User.update({ _id : userId }, { $addToSet: { 'list' : socketId} })
+		.then(data => {
+			console.log(data)
+		})
+    })
+}

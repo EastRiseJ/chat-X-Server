@@ -1,45 +1,46 @@
-const redis = require('../redis').redisClient
+const User = require('../user/user.model')
+const redisClient = require('../redis').redisClient
+const redis = require('../redis')
+const auth = require('../../auth/auth.service')
+const controller = require('../user/user.controller')
 
-let isOnline = (id) => {
-    return new Promise((resolve,reject)=>{
-        redis.hexists('online', id, (err, reply) => {
-            if (reply === 1) {
-                redis.hget('online', id, (err, reply) => {
-                    resolve(reply)
-                })
-            } else {
-                resolve(false)
-            }
-        })
-    })
-}
 
 module.exports = (io) => {
-    const liveUser = new Set();
     
-    io.on('connection', (socket) => {
-        const socketId = socket.id
+    io.on('connection',async (socket) => {
         console.log(`一位用户上线`);
+        const socketId = socket.id
+        const token = socket.handshake.query.token
+        //验证token
+        let userId = await auth.isAuthenticatedSocket(token)
+        if(userId){
+            redis.setOnline(userId, socketId)
+        }
 
         socket.on('login', (userId) => {
-            redis.hset('online', userId, socketId, () => {
-                console.log('登陆成功')
-            })
+            redis.setOnline(userId, socketId)
         });
 
-        socket.on('addToDirectorie', async (otherUserId) => {
-            let socketId = await isOnline(otherUserId)
+        socket.on('addDirectorie', async (userId, otherUserId) => {
+            let socketId = await redis.isOnline(otherUserId)
             console.log(socketId)
             if(socketId){
                 //转发给用户
-                io.to(socketId).emit('getMessage', 'add to you')
+                User.findOne({ _id: userId }, '_id name email avatar')
+                    .then(data => {
+                        io.to(socketId).emit('addDirectorie', data)
+                    })
             } else {
 
             }
         })
 
+        socket.on('addDirectorieAgree', async (userId, otherUserId) => {
+            controller.addList(userId, otherUserId)
+        })
+
         socket.on('message', async ({userId, otherUserId, message}) => {
-            let socketId = await isOnline(otherUserId)
+            let socketId = await redis.isOnline(otherUserId)
             if(socketId){
                 //转发给用户
                 let data = {id: userId, message: message}
