@@ -39,8 +39,27 @@ module.exports.isOnline = (id) => {
  */
 module.exports.setOnline = (userId, socketId) => {
     return new Promise((resolve,reject)=>{
+		redisClient.hset('online', socketId, userId, () => {
+		})
 		redisClient.hset('online', userId, socketId, () => {
 			console.log('登陆成功')
 		})
     })
+}
+
+/**
+ * 
+ * @param {*} userId 
+ * @param {*} socketId 
+ */
+module.exports.delOnline = (socketId) => {
+	let userId = ''
+	redisClient.hget('online', socketId, (err, reply) => {
+		userId = reply
+		redisClient.hdel('online', userId, () => {
+		})
+		redisClient.hdel('online', userId, () => {
+			console.log('退出成功')
+		})
+	})
 }

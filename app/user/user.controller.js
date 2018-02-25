@@ -1,6 +1,3 @@
-/**
- * Created by dsji on 2017/12/18 0018.
- */
 const User = require('./user.model')
 const config = require('../../config/config')
 const jwt = require('jsonwebtoken')
@@ -84,7 +81,9 @@ module.exports.signin = (req, res, next) => {
 								email: user.email,
 								avatar: user.avatar,
 								token: user.token,
-								list: user.list
+								list: user.list,
+								addList: user.addList,
+								addListRes: user.addListRes
 							},
 							message: '登录成功' 
 						});
@@ -140,14 +139,97 @@ module.exports.searchUser = (req, res, next) => {
     	.catch(handleError(res))
 }
 
-/**
- * 增加到好友列表
+/*
+ * 获取登陆用户的信息
  */
-module.exports.addList = (userId, socketId) => {
+module.exports.userInfo = (userId) => {
+		_query = {_id: userId};
+		return new Promise((resolve,reject)=>{
+			User.findOne(_query)
+				.populate('list', 'email name')
+				.populate('addList', 'email name')
+				.populate('addListRes', 'email name')
+				.then(user => {
+					resolve({
+						id: user.id,
+						name: user.name,
+						email: user.email,
+						avatar: user.avatar,
+						token: user.token,
+						list: user.list,
+						addList: user.addList,
+						addListRes: user.addListRes
+					})
+				})
+		})		
+}
+
+/*
+ * 根据id返回信息
+ */
+module.exports.getUserInfoById = (userId) => {
+		_query = {_id: userId};
+		return new Promise((resolve,reject)=>{
+			User.findOne(_query)
+				.then(user => {
+					resolve({
+						id: user.id,
+						name: user.name,
+						email: user.email,
+						avatar: user.avatar
+					})
+				})
+		})		
+}
+
+/**
+ * 发起增加好友请求
+ */
+module.exports.addList = (userId, otherUserId) => {
+	User.update({ _id : userId }, { $addToSet: { 'addList' : otherUserId} })
+	.then(data => {
+		console.log(data)
+	})
+	User.update({ _id : otherUserId }, { $addToSet: { 'addListRes' : userId} })
+	.then(data => {
+		console.log(data)
+	})
+}
+
+/**
+ * 同意增加到好友列表
+ */
+module.exports.addListAgree = (userId, otherUserId) => {
     return new Promise((resolve,reject)=>{
-		User.update({ _id : userId }, { $addToSet: { 'list' : socketId} })
+		User.update({ _id : userId }, { $addToSet: { 'list' : otherUserId}, $pull : { 'addListRes' : otherUserId } })
+		.then(data => {
+			console.log(data)
+		})
+		User.update({ _id : otherUserId }, { $addToSet: { 'list' : userId}, $pull : { 'addList' : userId }  })
 		.then(data => {
 			console.log(data)
 		})
     })
+}
+
+/**
+ * 
+ */
+module.exports.addWaitMessage = (otherUserId, data) => {
+	User.update({ _id : otherUserId }, { $addToSet : { 'waitMessage' : data } })
+	.then(data => {})
+}
+
+module.exports.getWaitMessage = (userId) => {
+	let ret = ''
+	new Promise((resolve,reject)=>{
+		User.findOne({ _id: userId }, 'waitMessage')
+			.then(data => {
+				ret = data.waitMessage
+				resolve()
+			})
+	}).then((resolve,reject) => {
+		User.update({ _id: userId }, { $unset: { waitMessage: '' } })
+	})		
+	return ret
 }

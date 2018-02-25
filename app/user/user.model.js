@@ -1,6 +1,3 @@
-/**
- * Created by dsji on 2017/12/18 0018.
- */
 var mongoose = require('mongoose'),
 	// crypto = require('crypto'),
 	Schema = mongoose.Schema;
@@ -17,7 +14,10 @@ var UserSchema = new Schema({
     type: String,
     default: ''
   },
-	list: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+  list: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  addList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  addListRes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  waitMessage: []
 })
 // let User = mongoose.model('User', UserSchema)
 UserSchema.methods = {
